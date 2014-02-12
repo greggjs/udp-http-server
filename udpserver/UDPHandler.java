@@ -74,13 +74,17 @@ public class UDPHandler implements Runnable {
      * request that it received.
      */
     public byte[] makeResponse(String request) throws GeneralSecurityException, IOException {
-        //String rep = request.replaceAll("\\r", "CRLF");
+        // Split the reqeust by CRLFs 
         String[] newlines = request.split("\\r?\\n", -1);
         Response resp;
         try {
+            // Try and make a request from the given input
+            // If we can't we send the proper error.
             Request req = new Request(newlines);
+            // log and create the success response.
             log.write("Made Successful HTTP Response");
             resp = new Response(200, "OK", (new Date()).toString());
+        // Catch all request errors and send the proper error response.
         } catch (Request.RequestException err) {
             log.write("Error: " + err.errorStatus + ": " + err.msg);
             resp = new Response(err.errorCode, err.errorStatus, err.msg);

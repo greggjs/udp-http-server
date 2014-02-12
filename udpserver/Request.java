@@ -15,19 +15,34 @@ import java.io.*;
 import java.net.*;
 
 public class Request {
+    // Map to hold all header types and values of request
     private HashMap<String, String> headers;
+    // HTTP method of request
     private String method;
+    // URI of request
     private String uri;
-    private Logger log;
+    // Set of HTTP methods available 
     private static HashSet<String> HTTP_METHODS =
         new HashSet<String>(Arrays.asList(
                     "GET", "POST", "PUT", "HEAD", "DELETE", "OPTIONS"));
 
+    /**
+     *  Exception class to handle if there is a bad 
+     *  request and hold all error information.
+     */
     public class RequestException extends Exception {
-        int errorCode;
-        String errorStatus;
-        String msg;
+        int errorCode; // status code (400)
+        String errorStatus; // error status ('bad request)
+        String msg; // message for requester
+        /**
+         *  Default Constructor
+         */
         public RequestException() {}
+        
+        /**
+         *  Constructor that creates a new ReqeustException with a given
+         *  code, status, and message.
+         */
         public RequestException(String message, int errorCode, String errorStatus) {
             super(message);
             this.errorCode = errorCode;
@@ -36,6 +51,12 @@ public class Request {
         }
     }
 
+    /**
+     *  Constructur that creates a new Request with a given 
+     *  String array of a received request line. 
+     *  Handles all forms of bad and malformed requests and 
+     *  throws thme to the caller.
+     */
     public Request(String[] lines) throws RequestException {
         // check and see if it's a valid request
         if (lines.length < 4) {
@@ -61,6 +82,7 @@ public class Request {
                 headers.put(header[0], header[1]);
             }
         }
+        // If there is no Host field, throw an error.
         if (!headers.containsKey("Host:")) {
             throw new RequestException("No Host Specified", 400, "Bad Request");
         }
