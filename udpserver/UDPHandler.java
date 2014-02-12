@@ -68,8 +68,9 @@ public class UDPHandler implements Runnable {
         String rep = request.replaceAll("\\r", "CRLF");
         String[] newlines = rep.split("CRLF");
         try {
-            Request req = new Request(newlines, log);
+            Request req = new Request(newlines);
         } catch (Request.RequestException err) {
+            log.write("Error: " + err.errStatus + ": " + err.msg);
             Response resp = new Response(err.errorCode, err.errorStatus, err.msg);
             return Response.getEncryptedBytes(resp.getSimpleResponseString());
         }

@@ -36,11 +36,10 @@ public class Request {
         }
     }
 
-    public Request(String[] lines, Logger log) throws RequestException {
+    public Request(String[] lines) throws RequestException {
         // check and see if it's a valid request
         if (lines.length < 4) {
-            log.write("Error: Malformed Request");
-            throw new RequestException("This request is malformed.", 500, "Malformed Request");
+            throw new RequestException("This request is malformed.", 400, "Bad Request");
         }
         this.headers = new HashMap<String, String>();
         // Make request object
@@ -49,11 +48,9 @@ public class Request {
             if (i == 0) {
                 // check the HTTP method is valid
                 if (!HTTP_METHODS.contains(header[0])) {
-                    log.write("Error: Invalid HTTP Method");
                     throw new RequestException("You probs need an actual HTTP Method", 400, "Bad Request");
                     // check if it has a valid URI
                 } else if (header[1].equals("")) {
-                    log.write("Error: Invalid URI");
                     throw new RequestException("There ain't a URI...", 400, "Bad Request");
                 }
                 // Add the method and URI of the request
@@ -61,7 +58,6 @@ public class Request {
                 this.uri = header[1];
             // Add each Header to the dictionary 
             } else if (header.length != 0) {
-                System.out.println("Header: " + header[1] + "\nValue: " + header[2]);
                 headers.put(header[1], header[2]);
             }
         }
