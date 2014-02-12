@@ -24,7 +24,7 @@ public class UDPHandler implements Runnable {
 
     // ENCRYPTION PARAMS
     private static final String KEY = "KKfHCLdNdutbQ46gkDdggQ==";
-    private UDPCipher cipher = new UDPCipher(KEY);
+    private UDPCipher cipher; 
 
     /**
      * Constructor. Creates a new UDP handler that services the given request.
@@ -34,9 +34,12 @@ public class UDPHandler implements Runnable {
         this.pkt = pkt;
         this.log = log;
         try {
+            this.cipher = new UDPCipher(KEY);
             this.request = cipher.decrypt(request);
         } catch (GeneralSecurityException err) {
             log.write("Error: " + err.toString());
+        } catch (IOException io) {
+            log.write("Error: " + io.toString());
         }
     }
 

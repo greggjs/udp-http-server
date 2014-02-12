@@ -14,18 +14,12 @@ public class UDPCipher {
     private SecretKeySpec skeySpec;
     private IvParameterSpec ivspec;
 
-    public UDPCipher(String key) {
-        try {
-            this.key = key;
-            this.iv = key;
-            this.skeySpec = new SecretKeySpec(Base64.decode(key), "AES");
-            this.ivspec = new IvParameterSpec(Base64.decode(iv));
-            this.cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        } catch (GeneralSecurityException err) {
-            err.printStackTrace();
-        } catch (IOException io) {
-            io.printStackTrace();
-        }
+    public UDPCipher(String key) throws GeneralSecurityException, IOException {
+        this.key = key;
+        this.iv = key;
+        this.skeySpec = new SecretKeySpec(Base64.decode(key), "AES");
+        this.ivspec = new IvParameterSpec(Base64.decode(iv));
+        this.cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
     }
 
     public byte[] encrypt(String msg) throws GeneralSecurityException {
