@@ -11,13 +11,14 @@ public class Response {
     private HashMap<String, String> headers;
     private String message;
     private static final String KEY = "KKfHCLdNdutbQ46gkDdggQ==";
-    private static UDPCipher cipher = new UDPCipher(KEY);
+    private static UDPCipher cipher;
 
 
-    public Response(int statusCode, String statusMsg, String message) {
+    public Response(int statusCode, String statusMsg, String message) throws GeneralSecurityException, IOException {
         this.statusCode = statusCode;
         this.statusMsg = statusMsg;
         this.message = message;
+        this.cipher = new UDPCipher(KEY);
     }
 
     public String getSimpleResponseString() {

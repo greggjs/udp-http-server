@@ -60,10 +60,11 @@ public class UDPHandler implements Runnable {
             log.write(new String(sendBuffer));
 
             // log when an error occurs.
+        } catch (GeneralSecurityException gse) {
+            log.write("General Security Exception: " + gse.toString());
         } catch (IOException err) {
             log.write("An error has occured");
             log.write(err.toString());
-
         }
     }
 
@@ -71,7 +72,7 @@ public class UDPHandler implements Runnable {
      * Determines what response to send the user based on the 
      * request that it received.
      */
-    public byte[] makeResponse(String request) {
+    public byte[] makeResponse(String request) throws GeneralSecurityException, IOException {
         String rep = request.replaceAll("\\r", "CRLF");
         String[] newlines = rep.split("CRLF");
         Response resp;
@@ -83,12 +84,7 @@ public class UDPHandler implements Runnable {
             log.write("Error: " + err.errorStatus + ": " + err.msg);
             resp = new Response(err.errorCode, err.errorStatus, err.msg);
         }
-        try {
-            return Response.getEncryptedBytes(resp.getSimpleResponseString());
-        } catch (GeneralSecurityException err) {
-            log.write("Error: " + err.toString());
-            return resp.getSimpleResponseString().getBytes();
-        }
+        return Response.getEncryptedBytes(resp.getSimpleResponseString());
     }
 
 }
