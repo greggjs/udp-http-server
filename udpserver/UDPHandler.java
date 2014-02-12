@@ -49,6 +49,7 @@ public class UDPHandler implements Runnable {
      */
     public void run() {
         try {
+            log.write(request);
             byte sendBuffer[] = makeResponse(request);
 
             // create datagram packet - use senders address (eg: send back to client)
@@ -57,7 +58,7 @@ public class UDPHandler implements Runnable {
 
             // log the response to the person we contacted.
             log.write("Response to: " + pkt.getSocketAddress().toString());
-            log.write(new String(sendBuffer));
+            log.write(cipher.decrypt(sendBuffer));
 
             // log when an error occurs.
         } catch (GeneralSecurityException gse) {

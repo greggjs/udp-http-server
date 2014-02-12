@@ -68,7 +68,6 @@ public class UDP {
                  
                 // log who contacted the server and what they sent
                 log.write("Request from: " + pkt.getSocketAddress().toString());
-                log.write(new String(reqarr));
                 
                 // create a handler to handle the request.
                 Runnable handler = new UDPHandler(sock, pkt, reqarr, log);
