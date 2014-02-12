@@ -79,8 +79,11 @@ public class UDPHandler implements Runnable {
      */
     public byte[] makeResponse(String request) {
         System.out.println(request);
-        String[] newlines = request.split("\\r?\\n");
+        String rep = request.replaceAll("\\r", "CRLF");
+        System.out.println(rep);
+        String[] newlines = rep.split("CRLF");
         System.out.println(Arrays.toString(newlines));
+        System.out.println(newlines.length);
         // check and see if it's a valid request
         if (newlines.length < 4) {
             log.write("Error: Malformed Request");
