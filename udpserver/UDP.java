@@ -23,7 +23,7 @@ public class UDP {
     // packet object for client packets
     DatagramPacket pkt;
     // port we listen on in our server
-    static final int PORT = 8000;
+    static final int PORT = 8100;
     // logger we use to write down actions taken by the server
     static Logger log = new Logger("udp.log");
     // thread pool size and thread pool object.
@@ -61,17 +61,17 @@ public class UDP {
         while (true) {  
             try {
                 // get packet
-                recvBuffer = new byte[1000]; //store packet here
+                recvBuffer = new byte[4096]; //store packet here
                 pkt = new DatagramPacket(recvBuffer,recvBuffer.length);
                 sock.receive(pkt);
-                String request = new String(recvBuffer);
-                
+                byte[] reqarr = Arrays.copyOfRange(pkt.getData(), pkt.getOffset(), pkt.getLength());
+                 
                 // log who contacted the server and what they sent
                 log.write("Request from: " + pkt.getSocketAddress().toString());
-                log.write(request);
+                log.write(new String(reqarr));
                 
                 // create a handler to handle the request.
-                Runnable handler = new UDPHandler(sock, pkt, request, log);
+                Runnable handler = new UDPHandler(sock, pkt, reqarr, log);
                 pool.execute(handler);
 
             // log when an error occurs.
