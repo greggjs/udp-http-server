@@ -21,10 +21,6 @@ public class UDPHandler implements Runnable {
     private static DatagramSocket sock;
     private DatagramPacket pkt;
     private String request;
-    // hashset to store all of our valid HTTP methods for validation purposes.
-    private static HashSet<String> HTTP_METHODS =
-        new HashSet<String>(Arrays.asList(
-                    "GET", "POST", "PUT", "HEAD", "DELETE", "OPTIONS"));
 
     // ENCRYPTION PARAMS
     private static final String KEY = "KKfHCLdNdutbQ46gkDdggQ==";
@@ -46,24 +42,15 @@ public class UDPHandler implements Runnable {
      */
     public void run() {
         try {
-            byte sendBuffer[];
+            byte sendBuffer[] = makeResponse(request);
 
-            // create response buffer and packet
-            //ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            //PrintWriter pw = new PrintWriter(bos);
-            byte[] response = makeResponse(request);
-
-            // make response a byte array
-            //pw.print(response);
-            //pw.flush();
-            sendBuffer = response;
             // create datagram packet - use senders address (eg: send back to client)
             DatagramPacket sendPkt = new DatagramPacket(sendBuffer,sendBuffer.length, pkt.getSocketAddress());
             sock.send(sendPkt);
 
             // log the response to the person we contacted.
             log.write("Response to: " + pkt.getSocketAddress().toString());
-            log.write(new String(response));
+            log.write(new String(sendBuffer));
 
             // log when an error occurs.
         } catch (IOException err) {
@@ -78,60 +65,18 @@ public class UDPHandler implements Runnable {
      * request that it received.
      */
     public byte[] makeResponse(String request) {
-        System.out.println(request);
         String rep = request.replaceAll("\\r", "CRLF");
-        System.out.println(rep);
         String[] newlines = rep.split("CRLF");
-        System.out.println(Arrays.toString(newlines));
-        System.out.println(newlines.length);
-        // check and see if it's a valid request
-        if (newlines.length < 4) {
-            log.write("Error: Malformed Request");
-            return makeErrorResponse(500, "Malformed Request", "This request is malformed.");
+        try {
+            Request req = new Request(newlines, log);
+        } catch (Request.RequestException err) {
+            Response resp = new Response(err.errorCode, err.errorStatus, err.msg);
+            return Response.getEncryptedBytes(resp.getSimpleResponseString());
         }
-        String method = "", uri  = "";
-        HashMap<String, String> headers = new HashMap<String, String>();
-        for (int i = 0; i < newlines.length; i++) {
-            String[] header = newlines[i].split("\\s");
-            if (i == 0) {
-                // check the HTTP method is valid
-                if (!HTTP_METHODS.contains(header[0])) {
-                    log.write("Error: Invalid HTTP Method");
-                    return makeErrorResponse(400, "Bad Request", "You probs need an actual HTTP Method");
-                // check if it has a valid URI
-                } else if (header[1].equals("")) {
-                    log.write("Error: Invalid URI");
-                    return makeErrorResponse(400, "Bad Request", "There ain't a URI...");
-                }
-                method = header[0];
-                uri = header[1];
-            }
-        }
-        Request r = new Request(method, uri, headers);
-        // if it passes these checks, then send a valid response.
+        
         log.write("Made Successful HTTP Response");
-        return makeGoodResponse();
+        Response resp = new Response(200, "OK", (new Date()).toString());
+        return Response.getEncryptedBytes(resp.getSimpleResponseString());
     }
 
-    /**
-     * Makes an error message to send. It takes in an Error code, status, and message
-     * to display to the requester.
-     */
-    public byte[] makeErrorResponse(int errorCode, String errorStatus, String errorMsg) {
-        String msg = "HTTP/1.1 " + errorCode + " " + errorStatus
-            + "\nContent-Type:text/html\nConnection:closed\n\n"
-            + "<html><body>" + errorMsg + "</body></html>\n\n";
-        return cipher.encrypt(msg);
-    }
-
-    /**
-     * Makes a valid HTTP response to the requester. All it does now is
-     * return an HTML document that contains the current date and time.
-     */
-    public byte[] makeGoodResponse() {
-        Date d = new Date();
-        String msg = "HTTP/1.1 200 OK\nContent-Type:text/html\nConnection:closed\n\n"
-            + "<html><body>"+d.toString()+"</body></html>\n\n";
-        return cipher.encrypt(msg); 
-    }
 }
