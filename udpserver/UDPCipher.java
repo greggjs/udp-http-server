@@ -28,25 +28,15 @@ public class UDPCipher {
         }
     }
 
-    public byte[] encrypt(String msg) {
-        try {
-            this.cipher.init(Cipher.ENCRYPT_MODE, this.skeySpec, this.ivspec);
-            byte[] msg_enc = cipher.doFinal(msg.getBytes());
-            return msg_enc;
-        } catch(GeneralSecurityException err) {
-            err.printStackTrace();
-            return new byte[0];
-        }
+    public byte[] encrypt(String msg) throws GeneralSecurityException {
+        this.cipher.init(Cipher.ENCRYPT_MODE, this.skeySpec, this.ivspec);
+        byte[] msg_enc = cipher.doFinal(msg.getBytes());
+        return msg_enc;
     }
 
-    public String decrypt(byte[] enc) {
-        try {
-            this.cipher.init(Cipher.DECRYPT_MODE, this.skeySpec, this.ivspec);
-            byte[] msg = cipher.doFinal(enc);
-            return new String(msg);
-        } catch(GeneralSecurityException err) {
-            err.printStackTrace();
-            return "";
-        }
+    public String decrypt(byte[] enc) throws GeneralSecurityException {
+        this.cipher.init(Cipher.DECRYPT_MODE, this.skeySpec, this.ivspec);
+        byte[] msg = cipher.doFinal(enc);
+        return new String(msg);
     }
 }

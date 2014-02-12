@@ -3,6 +3,7 @@ package udpserver;
 import java.util.*;
 import java.io.*;
 import java.net.*;
+import java.security.GeneralSecurityException;
 
 public class Response {
     private int statusCode;
@@ -31,7 +32,7 @@ public class Response {
             + "<html><body>"+d.toString()+"</body></html>\n\n";
     }
 
-    public static byte[] getEncryptedBytes(String msg) {
+    public static byte[] getEncryptedBytes(String msg) throws GeneralSecurityException {
         return cipher.encrypt(msg);
     }
 

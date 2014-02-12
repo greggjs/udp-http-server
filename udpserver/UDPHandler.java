@@ -1,20 +1,20 @@
 
- /**
-  * Name: Jake Gregg
-  * Instructor: Dr. Scott Campbell
-  * Date: Feb 3, 2014
-  * Class: CSE 617
-  * Filename: UDPHandler.java
-  * Description: Runs a UDP handler that determines the response
-  * to send back to the requester. 
-  */
+/**
+ * Name: Jake Gregg
+ * Instructor: Dr. Scott Campbell
+ * Date: Feb 3, 2014
+ * Class: CSE 617
+ * Filename: UDPHandler.java
+ * Description: Runs a UDP handler that determines the response
+ * to send back to the requester. 
+ */
 
 package udpserver;
 
 import java.util.*;
 import java.io.*;
 import java.net.*;
-import java.security.SecureRandom;
+import java.security.GeneralSecurityException;
 
 public class UDPHandler implements Runnable {
     private Logger log;
@@ -25,15 +25,19 @@ public class UDPHandler implements Runnable {
     // ENCRYPTION PARAMS
     private static final String KEY = "KKfHCLdNdutbQ46gkDdggQ==";
     private UDPCipher cipher = new UDPCipher(KEY);
-    
+
     /**
      * Constructor. Creates a new UDP handler that services the given request.
      */
     public UDPHandler(DatagramSocket sock, DatagramPacket pkt, byte[] request, Logger log) {
         this.sock = sock;
         this.pkt = pkt;
-        this.request = cipher.decrypt(request);
         this.log = log;
+        try {
+            this.request = cipher.decrypt(request);
+        } catch (GeneralSecurityException err) {
+            log.write("Error: " + err.toString());
+        }
     }
 
     /**
@@ -67,17 +71,21 @@ public class UDPHandler implements Runnable {
     public byte[] makeResponse(String request) {
         String rep = request.replaceAll("\\r", "CRLF");
         String[] newlines = rep.split("CRLF");
+        Response resp;
         try {
             Request req = new Request(newlines);
+            log.write("Made Successful HTTP Response");
+            resp = new Response(200, "OK", (new Date()).toString());
         } catch (Request.RequestException err) {
-            log.write("Error: " + err.errStatus + ": " + err.msg);
-            Response resp = new Response(err.errorCode, err.errorStatus, err.msg);
-            return Response.getEncryptedBytes(resp.getSimpleResponseString());
+            log.write("Error: " + err.errorStatus + ": " + err.msg);
+            resp = new Response(err.errorCode, err.errorStatus, err.msg);
         }
-        
-        log.write("Made Successful HTTP Response");
-        Response resp = new Response(200, "OK", (new Date()).toString());
-        return Response.getEncryptedBytes(resp.getSimpleResponseString());
+        try {
+            return Response.getEncryptedBytes(resp.getSimpleResponseString());
+        } catch (GeneralSecurityException err) {
+            log.write("Error: " + err.toString());
+            return resp.getSimpleResponseString().getBytes();
+        }
     }
 
 }
