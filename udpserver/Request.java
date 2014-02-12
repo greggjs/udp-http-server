@@ -1,3 +1,13 @@
+/**
+ * Name: Jake Gregg
+ * Instructor: Dr. Scott Campbell
+ * Date: Feb 12, 2014
+ * Class: CSE 617
+ * Filename: Request.java
+ * Description: Object for creating and handling errors with 
+ * Requests within the UDP server.
+ */
+
 package udpserver;
 
 import java.util.*;
