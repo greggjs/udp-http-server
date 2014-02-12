@@ -74,8 +74,8 @@ public class UDPHandler implements Runnable {
      * request that it received.
      */
     public byte[] makeResponse(String request) throws GeneralSecurityException, IOException {
-        String rep = request.replaceAll("\\r", "CRLF");
-        String[] newlines = rep.split("CRLF");
+        //String rep = request.replaceAll("\\r", "CRLF");
+        String[] newlines = request.split("\\r?\\n", -1);
         Response resp;
         try {
             Request req = new Request(newlines);

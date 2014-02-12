@@ -58,7 +58,7 @@ public class Request {
                 this.uri = header[1];
             // Add each Header to the dictionary 
             } else if (header.length != 0) {
-                headers.put(header[1], header[2]);
+                headers.put(header[0], header[1]);
             }
         }
         if (!headers.containsKey("Host:")) {
